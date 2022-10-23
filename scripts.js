@@ -23,17 +23,28 @@ class Player{
             x:0, //Vitesse de déplacement sur l'axe des X
             y:0 //Vitesse de déplacement sur l'axe des Y
        }
-        this.position={
-            x:(world.width-this.width)/2, // position du joueur par default au centre
-            y:world.height - this.height // position du joueur par défault en bas
+       //Gére l'image du joueur
+        const image = new Image();
+        image.src = './space.png';
+        image.onload=()=>{
+            this.image = image;
+            this.width = 48;
+            this.height = 48;
+            this.position={
+                x:world.width/2 - this.width/2, // position du joueur par default au centre
+                y:world.height - this.height -10 // position du joueur par défault en bas
+            }
         }
         
     }
 
     draw(){
-        //Le joueur sera un carré blanc
-        c.fillStyle = 'white';
-        c.fillRect(this.position.x,this.position.y,this.width,this.height);
+        c.drawImage(this.image,
+            this.position.x,
+            this.position.y,
+            this.width,
+            this.height,
+            );   
     }
     shoot(){
         missiles.push(new Missile({
@@ -46,17 +57,19 @@ class Player{
 
     update(){
         // A chaque mise à jour on dessine le joueur
-        if(keys.ArrowLeft.pressed && this.position.x >= 0){
-            this.velocity.x = -5;
-            console.log(frames)
+        if(this.image){
+            if(keys.ArrowLeft.pressed && this.position.x >= 0){
+                this.velocity.x = -5;
+                console.log(frames)
+            }
+            else if(keys.ArrowRight.pressed && this.position.x <= world.width - this.width){
+                this.velocity.x = 5;
+            }else{
+                this.velocity.x = 0;
+            }
+            this.position.x += this.velocity.x;
+            this.draw();
         }
-        else if(keys.ArrowRight.pressed && this.position.x <= world.width - this.width){
-            this.velocity.x = 5;
-        }else{
-            this.velocity.x = 0;
-        }
-        this.position.x += this.velocity.x;
-        this.draw();
     }
 }
 
