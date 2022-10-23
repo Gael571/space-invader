@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 body{
     margin: 0;
     padding: 0;
@@ -13,20 +12,4 @@ body{
     top: 50%;
     transform: translate(-50%, -50%);
     border: 2px dotted white;
-=======
-body{
-    margin: 0;
-    padding: 0;
-    background: black;
-    width: 100%;
-    text-align: center;
-}
-#gameboard{
-    width: 80%;
-    height: 80vh;
-    position: absolute;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border: 2px dotted white;
->>>>>>> a58f932b8213dfa00b4bc37d804187916ea3b1ec
 }
