@@ -7,7 +7,7 @@ world.width = world.clientWidth;
 world.height = world.clientHeight;
 //Indicateur de la boucle
 let frames = 0;
-const missiles = [];
+
 //Etat des touches claviers
 const keys = {
     ArrowLeft:{ pressed:false },
@@ -73,6 +73,56 @@ class Player{
     }
 }
 
+
+class Alien{
+    constructor({position}){
+        this.velocity={x:0, y:0 }
+        const image= new Image();
+        image.src = './ghost.png';
+        image.onload =()=>{
+            this.image = image;
+            this.width=32;
+            this.height=32  ;
+            this.position= {
+                x:position.x,
+                y:position.y
+            }
+        }
+        
+    }
+    draw(){
+        if(this.image){
+        c.drawImage(this.image,this.position.x,this.position.y,this.width,this.height,);       
+        }
+    }
+
+    update({velocity}){
+        if(this.image){
+        this.position.x += velocity.x;
+        this.position.y += velocity.y;
+        if(this.position.y + this.height >= world.height){
+            console.log('You loose');
+        }
+        }
+        this.draw();
+    }
+    /*
+    shoot(alienMissiles){
+        if(this.position){
+            alienMissiles.push(new alienMissile({
+                position:{
+                    x:this.position.x,
+                    y:this.position.y
+                },
+                velocity:{
+                    x:0,
+                    y:3
+                }
+            }))
+        }
+    } */
+}
+
 class Missile{
     constructor({position}){
         this.position = position;
@@ -90,7 +140,45 @@ class Missile{
         this.draw();
     }
 }
+
+class Grid{
+    constructor(){
+        this.position={x:0,y:0};
+        this.velocity={x:1,y:0};
+        this.invaders = [ ]
+
+        let rows = Math.floor(world.height/34)*(1/3);
+        const colums = Math.floor(world.width/34)*(2/3);
+
+        this.height= rows*34;
+        this.width = colums*34;
+        for(let x=0; x<colums;x++){
+            for(let y=0; y<rows; y++){
+                this.invaders.push(new Alien({
+                    position:{
+                        x:x*34,
+                        y:y*34
+                    }
+                }))
+            }
+        }
+    }
+    update(){
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        this.velocity.y = 0;
+        if(this.position.x + this.width >= world.width || this.position.x == 0){
+            this.velocity.x = -this.velocity.x;
+            this.velocity.y = 34;
+        }
+    }
+}
+
+const missiles=[];
+let grids = [new Grid()];
+
 const player = new Player();
+let particules=[];
 
 //Boucle d'animation
 const animationLoop = ()=>{
@@ -106,6 +194,12 @@ const animationLoop = ()=>{
             missile.update();
             }
         })
+    grids.forEach((grid) =>{
+        grid.update();
+        grid.invaders.forEach((invader)=>{
+            invader.update({velocity:grid.velocity});
+        })
+    })
     frames++;
 }
 animationLoop();
