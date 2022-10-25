@@ -106,7 +106,7 @@ class Alien{
         }
         this.draw();
     }
-    /*
+    
     shoot(alienMissiles){
         if(this.position){
             alienMissiles.push(new alienMissile({
@@ -120,7 +120,7 @@ class Alien{
                 }
             }))
         }
-    } */
+    } 
 }
 
 class Missile{
@@ -174,7 +174,28 @@ class Grid{
     }
 }
 
+class alienMissile{
+    constructor({position,velocity}){
+        this.position = position;
+        this.velocity = velocity;
+        this.width = 3;
+        this.height = 10;
+    }
+    draw(){
+        c.fillStyle='yellow';
+        c.fillRect(this.position.x,this.position.y,this.width,this.height);
+        c.fill();
+    }
+    update(){
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        this.draw();
+    }
+}
+
+
 const missiles=[];
+const alienMissiles = [];
 let grids = [new Grid()];
 
 const player = new Player();
@@ -196,10 +217,22 @@ const animationLoop = ()=>{
         })
     grids.forEach((grid) =>{
         grid.update();
+        if(frames %50 === 0 && grid.invaders.length >0){
+            grid.invaders[Math.floor(Math.random()*(grid.invaders.length))].shoot(alienMissiles);
+            console.log(alienMissiles);
+        }
         grid.invaders.forEach((invader)=>{
             invader.update({velocity:grid.velocity});
         })
     })
+    alienMissiles.forEach((alienMissile,index)=>{
+        if(alienMissile.position.y + alienMissile.height >= world.height){
+            setTimeout(() =>{
+                alienMissiles.splice(index,1)},0);
+        }else{alienMissile.update();}
+    })
+
+
     frames++;
 }
 animationLoop();
