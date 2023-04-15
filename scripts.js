@@ -174,6 +174,34 @@ class Grid{
     }
 }
 
+class Particule{
+    constructor({position,velocity,radius,color}){
+        this.position = position
+        this.velocity = velocity
+        this.radius = radius
+        this.color = color
+        this.opacity = 1
+    }
+    draw(){
+        c.save();
+        c.globalAlpha = this.opacity;                         
+        c.beginPath();
+        c.fillStyle=this.color;
+        c.arc(this.position.x,this.position.y, this.radius,0,Math.PI *2)
+        c.fill()
+        c.closePath()
+        c.restore();
+    }
+    update(){
+        this.position.x += this.velocity.x;
+        this.position.y += this.velocity.y;
+        if(this.opacity > 0){
+            this.opacity -=0.01;
+        }
+        this.draw()
+    }
+ }
+
 class alienMissile{
     constructor({position,velocity}){
         this.position = position;
@@ -215,24 +243,82 @@ const animationLoop = ()=>{
             missile.update();
             }
         })
-    grids.forEach((grid) =>{
+    grids.forEach((grid,indexGrid) =>{
         grid.update();
         if(frames %50 === 0 && grid.invaders.length >0){
             grid.invaders[Math.floor(Math.random()*(grid.invaders.length))].shoot(alienMissiles);
             console.log(alienMissiles);
         }
-        grid.invaders.forEach((invader)=>{
+        grid.invaders.forEach((invader,indexI)=>{
             invader.update({velocity:grid.velocity});
-        })
+            missiles.forEach((missile,indexM)=>{
+                if(missile.position.y <= invader.position.y + invader.height &&
+                    missile.position.y >= invader.position.y &&
+                    missile.position.x + missile.width >= invader.position.x &&
+                    missile.position.x - missile.width <= invader.position.x + invader.width){
+                        for(let i=0; i <12;i++){
+                            particules.push(new Particule({
+                                position:{
+                                    x:invader.position.x + invader.width/2,
+                                    y:invader.position.y + invader.height/2
+                                },
+                                velocity:{x:(Math.random()-0.5)*2,y:(Math.random()-0.5)*2},
+                                radius:Math.random()*5+1,
+                                color:'red'
+                            }))
+                        } 
+                    setTimeout(()=>{
+                        grid.invaders.splice(indexI,1);
+                           
+                        missiles.splice(indexM,1)
+                        if(grid.invaders.length === 0 && grids.length ==1 ){
+                            grids.splice(indexGrid,1);
+                            grids.push(new Grid());
+                        } 
+                    },0)
+                    }
+                })
+            })
+
+
+
+        
     })
-    alienMissiles.forEach((alienMissile,index)=>{
-        if(alienMissile.position.y + alienMissile.height >= world.height){
+    alienMissiles.forEach((alienMissile,index) =>{
+        if(alienMissile.position.y + alienMissile.height >=world.height){ 
             setTimeout(() =>{
-                alienMissiles.splice(index,1)},0);
-        }else{alienMissile.update();}
-    })
+                alienMissiles.splice(index,1)} ,0);
+                    
+            }
+        else{alienMissile.update();}
+        if(alienMissile.position.y + alienMissile.height >= player.position.y  && 
+            alienMissile.position.y  <= player.position.y +player.height  && 
+            alienMissile.position.x  >= player.position.x  && 
+            alienMissile.position.x + alienMissile.width <= player.position.x + player.width){
+            alienMissiles.splice(index,1);
+               for(let i=0; i <22;i++){
+                    particules.push(new Particule({
+                        position:{
+                            x:player.position.x + player.width/2,
+                            y:player.position.y + player.height/2
+                        },
+                        velocity:{x:(Math.random()-0.5)*2,y:(Math.random()-0.5)*2},
+                        radius:Math.random()*5,
+                        color:'white'
+                    }))
+                }
+             //   lostLife(); 
+                 
+            }
+        }) 
 
-
+        particules.forEach((particule,index)=>{
+            if(particule.opacity <=0){
+                particules.splice(index,1)
+            }else{
+                particule.update();
+            }
+        }) 
     frames++;
 }
 animationLoop();
